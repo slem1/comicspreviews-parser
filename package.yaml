@@ -26,6 +26,9 @@ dependencies:
 - http-client
 - http-conduit
 - bytestring
+- HUnit
+- temporary
+- logging
 
 library:
   source-dirs: src
