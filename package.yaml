@@ -29,6 +29,8 @@ dependencies:
 - HUnit
 - temporary
 - logging
+- text
+- configurator
 
 library:
   source-dirs: src
