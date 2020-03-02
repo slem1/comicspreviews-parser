@@ -28,7 +28,7 @@ dependencies:
 - bytestring
 - HUnit
 - temporary
-- logging
+#- logging
 - text
 - configurator
 
