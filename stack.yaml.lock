@@ -67,6 +67,13 @@ packages:
       sha256: 39a832225810dbde572ce161e5f76e980e9dec67e9e00f139e1c40db699a0255
   original:
     hackage: configurator-0.3.0.0
+- completed:
+    hackage: aeson-1.4.6.0@sha256:560575b008a23960403a128331f0e59594786b5cd19a35be0cd74b9a7257958e,6980
+    pantry-tree:
+      size: 40193
+      sha256: 5769473440ae594ae8679dde9fe12b6d00a49264a9dd8962a53ff3ae5740d7a5
+  original:
+    hackage: aeson-1.4.6.0
 snapshots:
 - completed:
     size: 489011

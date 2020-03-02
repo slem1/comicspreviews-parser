@@ -15,6 +15,7 @@ import Control.Monad.Trans.Class
 
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
+
 downloadWeekReleases :: String -> FilePath -> ReaderT DC_T.Config IO ()
 downloadWeekReleases date path = ask >>= (\config -> lift $ do    
     property <- DC.require config (T.pack "previewsworld_url")

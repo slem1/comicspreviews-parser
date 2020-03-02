@@ -31,6 +31,7 @@ dependencies:
 #- logging
 - text
 - configurator
+- aeson
 
 library:
   source-dirs: src
