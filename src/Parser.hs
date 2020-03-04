@@ -6,37 +6,34 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import Text.Parsec.Char
 
---garbage :: Parser String
---garbage = manyTill anyChar startTag
-
 startTag :: Parser ()
 startTag = do 
     garbage <- manyTill anyChar (try $ (string "PREMIER PUBLISHERS"))
-    newline
-    newline
-    newline
+    endOfLine
+    endOfLine
+    endOfLine
     return ()
 
 editor :: Parser String
 editor = do
-    r <- manyTill anyChar newline 
-    newline
+    r <- manyTill anyChar endOfLine
+    endOfLine
     return r
-
-items :: Parser [String]
-items = sepBy (manyTill anyChar separator) separator
 
 separator :: Parser Char
 separator = char '\t'
 
-parseContent :: String -> Either ParseError [String] 
+items :: Parser [[String]]
+items = endBy item endOfLine
+    where item = sepBy (many $ noneOf ['\n','\t','\r']) $ separator
+
+parseContent :: String -> Either ParseError [[String]] 
 parseContent content = parse (startTag >> editor >> items) "" content
 
-parseFile :: FilePath -> IO ()
+parseFile :: FilePath -> IO [[String]]
 parseFile filePath = do 
     content <- readFile filePath  
-   -- putStrLn content
     let result = parseContent content
     case result of 
-        Right r -> putStrLn (show r)
+        Right r -> return r
         Left err -> error $ show err

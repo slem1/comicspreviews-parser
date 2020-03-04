@@ -12,6 +12,8 @@ import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Class
+import Parser
+import Comic
 
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
@@ -24,6 +26,16 @@ downloadWeekReleases date path = ask >>= (\config -> lift $ do
     response <- httpLBS $ request 
     let body = getResponseBody response
     L8.writeFile path body)
+
+parseCatalog :: FilePath -> IO [Comic]
+parseCatalog path = do 
+    result <- parseFile path
+    return $ mapToComic <$> result
+
+
+mapToComic :: [String] -> Comic
+mapToComic [id, title, price] = Comic id title price
+
 
 -- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        
 --withFileLogging logFilePath $ 

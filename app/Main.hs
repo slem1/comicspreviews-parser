@@ -16,4 +16,4 @@ main = do
 loadMainConfig :: IO DC_T.Config
 loadMainConfig = DC.load $ [DC.Required "application.properties"] 
 
-parseAFile = parseFile "C:\\dev\\workspaces\\comicspreviews-parser\\march.txt"
+parseAFile = parseFile "/Users/slemoine/dev/workspace/comicspreviews-parser/march.txt"
