@@ -1,5 +1,6 @@
 module Main where
 import Lib
+import Parser
 import qualified Data.Text as T
 import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
@@ -14,3 +15,5 @@ main = do
 
 loadMainConfig :: IO DC_T.Config
 loadMainConfig = DC.load $ [DC.Required "application.properties"] 
+
+parseAFile = parseFile "C:\\dev\\workspaces\\comicspreviews-parser\\march.txt"
