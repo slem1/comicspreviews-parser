@@ -31,10 +31,9 @@ parseCatalog :: FilePath -> IO [Comic]
 parseCatalog path = do 
     result <- parseFile path
     return $ mapToComic <$> result
-
-
-mapToComic :: [String] -> Comic
-mapToComic [id, title, price] = Comic id title price
+    where
+        mapToComic :: [String] -> Comic
+        mapToComic [id, title, price] = Comic id title price
 
 
 -- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        

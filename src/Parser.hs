@@ -1,5 +1,6 @@
 module Parser (
-    parseFile
+    parseFile,
+    parseContent
 ) where
 
 import Text.Parsec

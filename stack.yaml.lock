@@ -74,6 +74,13 @@ packages:
       sha256: 5769473440ae594ae8679dde9fe12b6d00a49264a9dd8962a53ff3ae5740d7a5
   original:
     hackage: aeson-1.4.6.0
+- completed:
+    hackage: hspec-2.7.1@sha256:0aa48928ce80a34f8ff8c5ef114bb6807edfb8d884bcd7211eceed710e7fb7a8,1769
+    pantry-tree:
+      size: 532
+      sha256: 8128733a7ef4760bbe5d978f2145fdcb29f4491b17db11e8c05b409441ceecb4
+  original:
+    hackage: hspec-2.7.1
 snapshots:
 - completed:
     size: 489011

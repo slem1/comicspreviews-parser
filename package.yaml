@@ -32,6 +32,7 @@ dependencies:
 - text
 - configurator
 - aeson
+- hspec
 
 library:
   source-dirs: src
