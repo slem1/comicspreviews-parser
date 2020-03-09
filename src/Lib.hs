@@ -27,13 +27,13 @@ downloadWeekReleases date path = ask >>= (\config -> lift $ do
     let body = getResponseBody response
     L8.writeFile path body)
 
-parseCatalog :: FilePath -> IO [Comic]
-parseCatalog path = do 
-    result <- parseFile path
-    return $ mapToComic <$> result
-    where
-        mapToComic :: [String] -> Comic
-        mapToComic [id, title, price] = Comic id title price
+--parseCatalog :: FilePath -> IO [Comic]
+--parseCatalog path = do 
+--    result <- parseFile path
+  --  return $ mapToComic <$> result
+  --  where
+  --      mapToComic :: [String] -> Comic
+  --      mapToComic [id, title, price] = Comic id title price
 
 
 -- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        
