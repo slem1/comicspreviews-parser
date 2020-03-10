@@ -7,9 +7,12 @@ parser1 = do
 	editor <- manyTill anyChar endOfLine
 	endOfLine
 	value <- try $ many item
-	newline
-	result <- parser1
-	return $ (editor, value):result
+	sep <- optionMaybe newline
+	case sep of
+		Nothing -> return [(editor, value)] 
+		Just _ -> do
+		result <- parser1
+		return $ (editor, value):result
 
 --optionMaybe $ sepBy item endOfLine
 --case value of
