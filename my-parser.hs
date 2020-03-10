@@ -2,12 +2,12 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import Text.Parsec.Char
 
-parser1 :: Parser [(String,[String])]
-parser1 = do
+editorCatalog :: Parser [(String,[[String]])]
+editorCatalog = do
 	editor <- manyTill anyChar endOfLine
 	endOfLine
 	value <- try $ many item
-	sep <- optionMaybe newline
+	sep <- optionMaybe endOfLine
 	case sep of
 		Nothing -> return [(editor, value)] 
 		Just _ -> do
@@ -19,14 +19,16 @@ parser1 = do
 --	Just v -> return $ Just (editor,v)
 --	Nothing -> return Nothing
 	 
-item :: Parser String
+item :: Parser [String]
 item = do 
-	r <- many1 (noneOf ['\n'])
-	newline
-	return r
-	
+	r <- sepBy1 (many1 $ noneOf ['\n','\t','\r']) $ separator
+	endOfLine
+	return r	
+
+separator :: Parser Char
+separator = char '\t'
 
 parseIt path = do 
 	content <- readFile path
-	return $ parse parser1 "" content
+	return $ parse editorCatalog "" content
 	
