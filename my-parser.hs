@@ -2,17 +2,26 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import Text.Parsec.Char
 
-parser1 :: Parser (Maybe [String])
+parser1 :: Parser [(String,[String])]
 parser1 = do
-	value <- optionMaybe $ sepBy item endOfLine
-	case value of
-		Just v -> return $ Just v
-		Nothing -> return Nothing
+	editor <- manyTill anyChar endOfLine
+	endOfLine
+	value <- try $ many item
+	newline
+	result <- parser1
+	return $ (editor, value):result
+
+--optionMaybe $ sepBy item endOfLine
+--case value of
+--	Just v -> return $ Just (editor,v)
+--	Nothing -> return Nothing
 	 
 item :: Parser String
-item = do
-	art <- try $ many (noneOf ['\n']) 
-	return art
+item = do 
+	r <- many1 (noneOf ['\n'])
+	newline
+	return r
+	
 
 parseIt path = do 
 	content <- readFile path
