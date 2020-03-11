@@ -21,39 +21,27 @@ editor = do
     endOfLine
     return r
 
-separator :: Parser Char
-separator = char '\t'
+catalogByEditor :: Parser [(String,[[String]])]
+catalogByEditor = do
+	editor <- manyTill anyChar endOfLine
+	endOfLine
+	items <- try $ many item
+	sep <- optionMaybe endOfLine
+	case sep of
+		Nothing -> return [(editor, items)] --must be EOF case
+		Just _ -> catalogByEditor >>= \result -> return $ (editor, items):result
+	 
+item :: Parser [String]
+item = do 
+	r <- sepBy1 (many1 $ noneOf ['\n','\t','\r']) $ separator
+	endOfLine
+	return r	
+    where separator = char '\t'
 
-parseEditorCatalog :: Parser (String, [[String]])
-parseEditorCatalog = do
-    ed1 <- editor
-    it1 <- item
-    endOfLine
-    it2 <- item
-    endOfLine
-    endOfLine
-    ed2 <- editor
-    it21 <- item
-    endOfLine
-    it22 <- item
-    endOfLine
-    endOfLine
+parseContent :: String -> Either ParseError [(String, [[String]])] 
+parseContent content = parse (startTag >> catalogByEditor) "" content
 
-    return (ed1, [it1, it2])
-    where item = sepBy (many $ noneOf ['\n','\t','\r']) $ separator
-    
-
-items :: Parser [[String]]
-items = endBy item endOfLine
-    where item = sepBy (many $ noneOf ['\n','\t','\r']) $ separator
-
---parseContent :: String -> Either ParseError [[String]] 
---parseContent content = parse (startTag >> editor >> items) "" content
-parseContent :: String -> Either ParseError (String, [[String]]) 
-parseContent content = parse (startTag >> parseEditorCatalog) "" content
-
---parseFile :: FilePath -> IO [[String]]
-parseFile :: FilePath -> IO (String, [[String]])
+parseFile :: FilePath -> IO [(String, [[String]])]
 parseFile filePath = do 
     content <- readFile filePath  
     let result = parseContent content
