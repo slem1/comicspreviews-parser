@@ -33,6 +33,7 @@ dependencies:
 - configurator
 - aeson
 - hspec
+- time
 
 library:
   source-dirs: src

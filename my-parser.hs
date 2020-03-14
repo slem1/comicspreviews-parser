@@ -11,7 +11,7 @@ editorCatalog = do
 	case sep of
 		Nothing -> return [(editor, value)] 
 		Just _ -> do
-		result <- parser1
+		result <- editorCatalog
 		return $ (editor, value):result
 
 --optionMaybe $ sepBy item endOfLine

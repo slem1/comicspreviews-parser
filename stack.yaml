@@ -52,6 +52,7 @@ extra-deps:
 - configurator-0.3.0.0
 - aeson-1.4.6.0
 - hspec-2.7.1
+- time-1.9.3
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
