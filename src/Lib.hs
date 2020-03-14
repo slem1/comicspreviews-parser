@@ -2,7 +2,8 @@ module Lib
     ( 
         downloadWeekReleases,
         releaseDay,
-        releaseDays
+        releaseDays,
+        fromCatalog
     ) where
 
 import qualified Data.ByteString.Lazy.Char8 as L8
@@ -32,13 +33,18 @@ downloadWeekReleases date path = ask >>= (\config -> lift $ do
     let body = getResponseBody response
     L8.writeFile path body)
 
---parseCatalog :: FilePath -> IO [Comic]
---parseCatalog path = do 
---    result <- parseFile path
-  --  return $ mapToComic <$> result
-  --  where
-  --      mapToComic :: [String] -> Comic
-  --      mapToComic [id, title, price] = Comic id title price
+fromCatalog :: FilePath -> IO [Comic]
+fromCatalog path = do 
+    --IO =[(editor, [[STRING]])]
+    result <- parseFile path
+    return $ foldr (\e acc -> (fromEditorCatalog e) ++ acc ) [] result
+
+fromEditorCatalog :: (String, [[String]]) -> [Comic]
+fromEditorCatalog (editor, x:[]) =  [mapToComic x editor]
+fromEditorCatalog (editor, x:xs) =  (mapToComic x editor) : (fromEditorCatalog (editor,xs))
+
+mapToComic :: [String] -> String -> Comic
+mapToComic [id, title, price] = Comic id title price
 
 
 -- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        

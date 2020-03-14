@@ -10,14 +10,15 @@ import Data.Aeson.Types
 data Comic = Comic {
     id :: String,
     title :: String,
-    price :: String
-} deriving Show
+    price :: String,
+    editor :: String
+} deriving (Show, Eq)
 
 instance ToJSON Comic where  
-    toJSON (Comic id title price) =
-        object ["id" .= id, "title" .= title, "price" .= price]
-    toEncoding (Comic id title price) =
-        pairs ("id" .= id <> "title" .= title <> "price" .= price) 
+    toJSON (Comic id title price editor) =
+        object ["id" .= id, "title" .= title, "price" .= price, "editor" .= editor]
+    toEncoding (Comic id title price editor) =
+        pairs ("id" .= id <> "title" .= title <> "price" .= price <> "editor" .= editor) 
 
 
 instance FromJSON Comic where
@@ -25,3 +26,4 @@ instance FromJSON Comic where
         <$> v .: "id"
         <*> v .: "title"
         <*> v .: "price"
+        <*> v .: "editor"
