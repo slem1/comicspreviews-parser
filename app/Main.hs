@@ -6,12 +6,10 @@ import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
 import Control.Monad.Trans.Reader
 
-main :: IO ()
+main :: IO [()]
 main = do
     config <- loadMainConfig 
-    outputDir <- DC.require config (T.pack "output_dir")
-    let outputFile = outputDir ++ "20201902-catalog.txt" 
-    runReaderT (downloadWeekReleases "02/19/2020" outputFile) config
+    runReaderT (download "2020-03-18") config
 
 loadMainConfig :: IO DC_T.Config
 loadMainConfig = DC.load $ [DC.Required "application.properties"] 

@@ -1,6 +1,6 @@
 module Lib
     ( 
-        downloadWeekReleases,
+        download,
         releaseDay,
         releaseDays,
         fromCatalog
@@ -15,6 +15,7 @@ import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Class
+import Control.Monad
 import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.Calendar.WeekDate
@@ -24,14 +25,26 @@ import Comic
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
 
-downloadWeekReleases :: String -> FilePath -> ReaderT DC_T.Config IO ()
-downloadWeekReleases date path = ask >>= (\config -> lift $ do    
-    property <- DC.require config (T.pack "previewsworld_url")
-    let url = property ++ "&releaseDate=" ++ date
-    request <- parseUrlThrow url
-    response <- httpLBS $ request 
-    let body = getResponseBody response
-    L8.writeFile path body)
+download :: String -> ReaderT DC_T.Config IO [()]
+download date = ask >>= (\config -> lift $ do 
+    url <- DC.require config (T.pack "previewsworld_url")
+    outputDir <- DC.require config (T.pack "output_dir")
+    sequence $ [ downloadWeekReleases url releaseDate outputDir |  releaseDate <- (releaseDays date)]
+    )
+    
+downloadWeekReleases :: String -> Maybe Day -> String -> IO ()
+downloadWeekReleases url date outputDir = 
+    case date of
+        Nothing -> return ()
+        Just d -> do
+            let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" d 
+            let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" d 
+            let reqUrl = url ++ "&releaseDate=" ++ queryDate
+            let outputPath = outputDir ++ "catalog" ++ fileNameDate
+            request <- parseUrlThrow reqUrl
+            response <- httpLBS $ request 
+            let body = getResponseBody response
+            L8.writeFile outputPath body
 
 fromCatalog :: FilePath -> IO [Comic]
 fromCatalog path = do 
@@ -68,4 +81,9 @@ releaseDays :: String ->  -- ^ The 'referenceDate' argument
     [Maybe Day]           -- ^ The return release dates
 releaseDays d = let d0 = releaseDay d
     in [d0, nextReleaseDay d0]
-    
+
+--getDates :: String -> [Maybe String]
+--getDates date = map' <$> (releaseDays date) 
+--    where
+--        map' :: Maybe Day -> Maybe String
+--        map' day = day >>= (\d -> return $ formatMyDate d) 
