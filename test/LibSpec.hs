@@ -4,6 +4,7 @@ import Test.HUnit
 import Lib
 import System.IO.Temp
 import System.IO
+import Data.Text as T
 import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
 import Control.Monad.Trans.Reader
@@ -31,11 +32,11 @@ spec = describe "test" $ do
 
 testDownloadWeekReleases :: IO Integer
 testDownloadWeekReleases = do
-    config <- DC.load $ [DC.Required "application.properties"]
-    tmp <- createTempFile
-    runReaderT (download tmp) config 
-    readSize tmp
-    where 
-        createTempFile = emptySystemTempFile "tempComicsPreviewsTest" 
-        download tempFilePath = downloadWeekReleases "02/19/2020" tempFilePath
-        readSize tempFilePath = openFile tempFilePath ReadMode >>= \handle -> hFileSize handle
+   let date = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-03-18" 
+   config <- DC.load $ [DC.Required "application.properties"]
+   url <- DC.require config (T.pack "previewsworld_url")
+   withSystemTempDirectory "previewsworld-test" (\path -> do 
+      Just file <- downloadWeekReleases url date path
+      readSize file)
+   where 
+      readSize tempFilePath = openFile tempFilePath ReadMode >>= \handle -> hFileSize handle

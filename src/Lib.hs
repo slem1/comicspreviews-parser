@@ -1,6 +1,7 @@
 module Lib
     ( 
         download,
+        downloadWeekReleases,
         releaseDay,
         releaseDays,
         fromCatalog
@@ -9,7 +10,7 @@ module Lib
 import qualified Data.ByteString.Lazy.Char8 as L8
 import Network.HTTP.Simple
 import Network.HTTP.Conduit
---import Control.Logging
+import Control.Logging
 import qualified Data.Text as T
 import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
@@ -24,27 +25,29 @@ import Comic
 
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
-
-download :: String -> ReaderT DC_T.Config IO [()]
+download :: String -> ReaderT DC_T.Config IO [Maybe FilePath]
 download date = ask >>= (\config -> lift $ do 
     url <- DC.require config (T.pack "previewsworld_url")
     outputDir <- DC.require config (T.pack "output_dir")
-    sequence $ [ downloadWeekReleases url releaseDate outputDir |  releaseDate <- (releaseDays date)]
+    sequence $ [ case releaseDate of
+                    Nothing -> return Nothing
+                    Just d -> downloadWeekReleases url d outputDir |  releaseDate <- (releaseDays date)]
     )
-    
-downloadWeekReleases :: String -> Maybe Day -> String -> IO ()
-downloadWeekReleases url date outputDir = 
-    case date of
-        Nothing -> return ()
-        Just d -> do
-            let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" d 
-            let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" d 
-            let reqUrl = url ++ "&releaseDate=" ++ queryDate
-            let outputPath = outputDir ++ "catalog" ++ fileNameDate
-            request <- parseUrlThrow reqUrl
-            response <- httpLBS $ request 
-            let body = getResponseBody response
-            L8.writeFile outputPath body
+-- |The 'downloadWeekReleases' download the catalog from 'url' with release day 'date' to directory 'outputDir'
+downloadWeekReleases :: String -- ^ The 'url' argument
+    -> Day                     -- ^ The 'date' argument
+    -> FilePath                -- ^ The 'outputDir' argument 
+    -> IO (Maybe FilePath)     -- ^ return the downloaded catalog filepath
+downloadWeekReleases url date outputDir =  do
+    let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" date
+    let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" date 
+    let reqUrl = url ++ "&releaseDate=" ++ queryDate
+    let outputPath = outputDir ++ "catalog-" ++ fileNameDate ++ ".txt"
+    request <- parseUrlThrow reqUrl
+    response <- httpLBS $ request 
+    let body = getResponseBody response
+    L8.writeFile outputPath body
+    return $ Just outputPath
 
 fromCatalog :: FilePath -> IO [Comic]
 fromCatalog path = do 
@@ -58,7 +61,6 @@ fromEditorCatalog (editor, x:xs) =  (mapToComic x editor) : (fromEditorCatalog (
 
 mapToComic :: [String] -> String -> Comic
 mapToComic [id, title, price] = Comic id title price
-
 
 -- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        
 --withFileLogging logFilePath $ 
@@ -81,9 +83,3 @@ releaseDays :: String ->  -- ^ The 'referenceDate' argument
     [Maybe Day]           -- ^ The return release dates
 releaseDays d = let d0 = releaseDay d
     in [d0, nextReleaseDay d0]
-
---getDates :: String -> [Maybe String]
---getDates date = map' <$> (releaseDays date) 
---    where
---        map' :: Maybe Day -> Maybe String
---        map' day = day >>= (\d -> return $ formatMyDate d) 

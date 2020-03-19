@@ -6,7 +6,7 @@ import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
 import Control.Monad.Trans.Reader
 
-main :: IO [()]
+main :: IO [Maybe FilePath]
 main = do
     config <- loadMainConfig 
     runReaderT (download "2020-03-18") config
