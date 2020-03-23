@@ -4,7 +4,7 @@ module Lib
         downloadWeekReleases,
         releaseDay,
         releaseDays,
-        fromCatalog
+        parseFromCatalog
     ) where
 
 import qualified Data.ByteString.Lazy.Char8 as L8
@@ -49,15 +49,15 @@ downloadWeekReleases url date outputDir =  do
     L8.writeFile outputPath body
     return $ Just outputPath
 
-fromCatalog :: FilePath -> IO [Comic]
-fromCatalog path = do 
+parseFromCatalog :: FilePath -> IO [Comic]
+parseFromCatalog path = do 
     --IO =[(editor, [[STRING]])]
     result <- parseFile path
-    return $ foldr (\e acc -> (fromEditorCatalog e) ++ acc ) [] result
+    return $ foldr (\e acc -> (mapFromEditor e) ++ acc ) [] result
 
-fromEditorCatalog :: (String, [[String]]) -> [Comic]
-fromEditorCatalog (editor, x:[]) =  [mapToComic x editor]
-fromEditorCatalog (editor, x:xs) =  (mapToComic x editor) : (fromEditorCatalog (editor,xs))
+mapFromEditor :: (String, [[String]]) -> [Comic]
+mapFromEditor (editor, x:[]) =  [mapToComic x editor]
+mapFromEditor (editor, x:xs) =  (mapToComic x editor) : (mapFromEditor (editor,xs))
 
 mapToComic :: [String] -> String -> Comic
 mapToComic [id, title, price] = Comic id title price
