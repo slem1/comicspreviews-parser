@@ -1,0 +1,15 @@
+CREATE USER comicspreviews WITH
+  LOGIN
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION;
+
+ALTER USER comicspreviews SET PASSWORD 'comics'
+
+CREATE DATABASE comicspreviews
+    WITH 
+    OWNER = comicspreviews
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
