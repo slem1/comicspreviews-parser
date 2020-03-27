@@ -6,7 +6,7 @@ CREATE USER comicspreviews WITH
   NOCREATEROLE
   NOREPLICATION;
 
-ALTER USER comicspreviews SET PASSWORD 'comics'
+ALTER USER comicspreviews WITH PASSWORD 'comicspreviews';
 
 CREATE DATABASE comicspreviews
     WITH 
