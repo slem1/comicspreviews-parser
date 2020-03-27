@@ -1,7 +1,7 @@
-module LibSpec where
+module CatalogServiceSpec where
 
 import Test.HUnit
-import Lib
+import CatalogService
 import System.IO.Temp
 import System.IO
 import Data.Text as T
