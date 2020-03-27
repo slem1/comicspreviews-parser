@@ -7,7 +7,7 @@ ALTER SEQUENCE comicspreviews.seq_t_catalog_id OWNER TO comicspreviews;
 
 CREATE TABLE comicspreviews.t_catalog(
     id_t_catalog bigint DEFAULT nextval('comicspreviews.seq_t_catalog_id'),
-    date_creation date NOT NULL,
+    date_creation date NOT NULL CONSTRAINT uq_t_catalog_date_creation UNIQUE,
     filepath VARCHAR(1024) NOT NULL,
     PRIMARY KEY (id_t_catalog)
 )

@@ -36,7 +36,7 @@ testDownloadWeekReleases = do
    config <- DC.load $ [DC.Required "application.properties"]
    url <- DC.require config (T.pack "previewsworld_url")
    withSystemTempDirectory "previewsworld-test" (\path -> do 
-      Just file <- downloadWeekReleases url date path
+      Just (_,file) <- downloadWeekReleases url date path
       readSize file)
    where 
       readSize tempFilePath = openFile tempFilePath ReadMode >>= \handle -> hFileSize handle

@@ -9,19 +9,22 @@ import Control.Monad.Trans.Reader
 import Comic
 import Database.PostgreSQL.Simple
 import Control.Monad
+import Data.Time.Format
+import Data.Time.Calendar
+import Data.Time.Calendar.WeekDate
+import Data.Int
 
-main :: IO [[Comic]]
+main :: IO [Int64]
 main = do
     config <- loadMainConfig 
-    files <- runReaderT (download "2020-03-18") config
-    sequence [ case file of 
-        Nothing -> return [] 
-        Just f -> parseFromCatalog f | file <- files]
-
+    dbc <- getConnectionInfo config >>= connect
+    catalogs <- runReaderT (download "2020-03-18") config
+    sequence $ [ case catalog of
+        Nothing -> return 0
+        Just (date, path) -> parseFromCatalog path >>= insertCatalog dbc (date, path) | catalog <- catalogs ]
+    
 loadMainConfig :: IO DC_T.Config
 loadMainConfig = DC.load $ [DC.Required "application.properties"] 
-
-parseAFile = parseFile "/Users/slemoine/dev/workspace/comicspreviews-parser/march.txt"
 
 getConnectionInfo :: DC_T.Config -> IO ConnectInfo
 getConnectionInfo config = do 
@@ -32,7 +35,19 @@ getConnectionInfo config = do
     database <- DC.require config . T.pack $ "db_database"
     return $ ConnectInfo host port username password database
 
-connectToDatabase catalog = 
-    let insert = \c -> execute c "INSERT INTO comicspreviews.t_catalog (date_creation,filepath) VALUES (?,?)" catalog
-    in loadMainConfig >>= getConnectionInfo >>= connect >>= insert
+insertCatalog :: Connection -> (Day, FilePath) -> [Comic] -> IO Int64
+insertCatalog conn (date, path) comics = 
+    let dateStr = formatTime defaultTimeLocale "%Y-%m-%d" date
+    in withTransaction conn $ insertCatalogLine conn (date, path) >>= \(Only idCatalog)-> insertComicsLines conn comics idCatalog
+
+insertCatalogLine :: Connection -> (Day, FilePath) -> IO (Only Int)
+insertCatalogLine conn catalog = do
+    [x] <- query conn "INSERT INTO comicspreviews.t_catalog (date_creation,filepath) VALUES (?,?) RETURNING id_t_catalog" catalog
+    return x
+
+insertComicsLines :: Connection -> [Comic] -> Int -> IO Int64
+insertComicsLines conn comics idCatalog = executeMany conn "INSERT INTO comicspreviews.t_comic (id_t_catalog, reference, title, price, editor) VALUES (?, ?, ?, ?, ?)" (mapper <$> comics)
+    where
+        mapper (Comic id title price editor) = (idCatalog, id, title, price, editor)
+
 

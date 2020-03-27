@@ -25,7 +25,7 @@ import Comic
 
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
-download :: String -> ReaderT DC_T.Config IO [Maybe FilePath]
+download :: String -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
 download date = ask >>= (\config -> lift $ do 
     url <- DC.require config (T.pack "previewsworld_url")
     outputDir <- DC.require config (T.pack "output_dir")
@@ -37,7 +37,7 @@ download date = ask >>= (\config -> lift $ do
 downloadWeekReleases :: String -- ^ The 'url' argument
     -> Day                     -- ^ The 'date' argument
     -> FilePath                -- ^ The 'outputDir' argument 
-    -> IO (Maybe FilePath)     -- ^ return the downloaded catalog filepath
+    -> IO (Maybe (Day, FilePath))     -- ^ return the downloaded catalog filepath
 downloadWeekReleases url date outputDir =  do
     let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" date
     let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" date 
@@ -47,7 +47,7 @@ downloadWeekReleases url date outputDir =  do
     response <- httpLBS $ request 
     let body = getResponseBody response
     L8.writeFile outputPath body
-    return $ Just outputPath
+    return $ Just (date, outputPath)
 
 parseFromCatalog :: FilePath -> IO [Comic]
 parseFromCatalog path = do 
