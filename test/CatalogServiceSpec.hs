@@ -18,11 +18,13 @@ spec = describe "test" $ do
         result <- testDownloadWeekReleases
         result `shouldSatisfy` \a -> a > 0
      it "should return the day of release" $ do
-        let Just result = releaseDay "2020-06-30"
+        let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-06-30"
+        let Just result = releaseDay ref
         let expected = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-07-01" 
         result `shouldBe` expected 
      it "should return the 2-week days of release" $ do
-        let [d0, d1] = releaseDays "2020-12-31"
+        let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-31"
+        let [d0, d1] = releaseDays ref
         let expectedd0 = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-30"
         let expectedd1 =  parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2021-01-06"
         [d0, d1] `shouldBe` [Just expectedd0, Just expectedd1]

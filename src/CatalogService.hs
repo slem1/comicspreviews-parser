@@ -29,7 +29,7 @@ import Comic
 
 logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
 
-download :: String -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
+download :: Day -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
 download date = ask >>= (\config -> lift $ do 
     url <- DC.require config (T.pack "previewsworld_url")
     outputDir <- DC.require config (T.pack "output_dir")
@@ -67,10 +67,9 @@ mapToComic :: [String] -> String -> Comic
 mapToComic [id, title, price] = Comic id title price
 
 -- |The 'releaseDay' function returns the release day in the week of referenceDate.
-releaseDay :: String     -- ^ The 'referenceDate' argument
+releaseDay :: Day        -- ^ The 'referenceDate' argument
     -> Maybe Day         -- ^ The return date
-releaseDay referenceDate = do 
-    date <- parseTimeM True defaultTimeLocale "%Y-%m-%d" referenceDate  
+releaseDay date = do     
     let (year, week, day) = toWeekDate date
     fromWeekDateValid year week 3    
 
@@ -79,8 +78,8 @@ nextReleaseDay d = (addDays 7) <$> d
 
 -- |The 'releaseDays' function returns the release day in the week of the given date
 -- and the week+1 release date.
-releaseDays :: String ->  -- ^ The 'referenceDate' argument
-    [Maybe Day]           -- ^ The return release dates
+releaseDays :: Day      -- ^ The 'referenceDate' argument
+    -> [Maybe Day]           -- ^ The return release dates
 releaseDays d = let d0 = releaseDay d
     in [d0, nextReleaseDay d0]
 

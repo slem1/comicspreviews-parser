@@ -35,6 +35,7 @@ dependencies:
 - hspec
 - time
 - postgresql-simple
+- optparse-applicative
 
 library:
   source-dirs: src

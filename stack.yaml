@@ -54,6 +54,7 @@ extra-deps:
 - hspec-2.7.1
 - time-1.9.3
 - postgresql-simple-0.6.2
+- optparse-applicative-0.15.1.0
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

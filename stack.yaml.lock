@@ -102,6 +102,13 @@ packages:
       sha256: 5fdaed800dee53a8d2a519d5ae04092ba18bf08d81eb817219fb8132bb918ec5
   original:
     hackage: postgresql-simple-0.6.2
+- completed:
+    hackage: optparse-applicative-0.15.1.0@sha256:a0b9924d88a17c36cd8e6839d7dd2138419dd8f08cbb4f9af18f3c367b0c69a3,4673
+    pantry-tree:
+      size: 2904
+      sha256: f3baab2f89cb92de0f90cf9ac3a89f20f3b28bffd1be7b09c9e611a8c6957e61
+  original:
+    hackage: optparse-applicative-0.15.1.0
 snapshots:
 - completed:
     size: 489011
