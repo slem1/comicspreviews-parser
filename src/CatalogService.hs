@@ -27,7 +27,8 @@ import Data.Int
 import Parser
 import Comic
 
-logFilePath = "/home/slemoine/dev/workspace/comicspreviews-parser/out.log"
+type ComicsByEditor = (String, [[String]]) -- ("Marvel", [["SpiderMan", "3.99$"], ["X-men", "3.99$"]])
+type Catalog = (String, [ComicsByEditor])  -- ("3/3/2020", [ComicsByEditor])
 
 download :: Day -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
 download date = ask >>= (\config -> lift $ do 
@@ -53,11 +54,16 @@ downloadWeekReleases url date outputDir =  do
     L8.writeFile outputPath body
     return $ Just (date, outputPath)
 
-parseFromCatalog :: FilePath -> IO [Comic]
-parseFromCatalog path = do 
-    --IO =[(editor, [[STRING]])]
-    result <- parseFile path
-    return $ foldr (\e acc -> (mapFromEditor e) ++ acc ) [] result
+parseFromCatalog :: FilePath -> Day -> IO (Either String [Comic])
+parseFromCatalog path date = do     
+    result <- parseFile path 
+    return $ do 
+        (parsedDate, comicsByEditor) <- result
+        let catalogParsedDate = (parseTimeOrError True defaultTimeLocale "%-m/%-d/%Y" parsedDate) :: Day        
+        if catalogParsedDate == date then
+            Right $ foldr (\e acc -> (mapFromEditor e) ++ acc ) [] comicsByEditor
+        else
+            Left "Release date in the catalog content does not match"    
 
 mapFromEditor :: (String, [[String]]) -> [Comic]
 mapFromEditor (editor, x:[]) =  [mapToComic x editor]

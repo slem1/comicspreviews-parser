@@ -61,11 +61,14 @@ main = do
     where        
         parseAndInserts conn (date,path) = do 
             LOGGER.log (catLog (date,path)) 
-            comics <- CatalogService.parseFromCatalog path 
-            LOGGER.log $ T.pack (show (length comics) ++ " comics parsed") 
-            result <- CatalogService.addCatalog conn (date, path) comics  
-            LOGGER.log $ T.pack "injection done"
-            return result
+            parseResult <- CatalogService.parseFromCatalog path date
+            case parseResult of                
+                Right comics -> do                      
+                    LOGGER.log $ T.pack (show (length comics) ++ " comics parsed") 
+                    result <- CatalogService.addCatalog conn (date, path) comics  
+                    LOGGER.log $ T.pack "injection done"
+                    return result
+                Left err -> (LOGGER.log $ T.pack err) >> fail err          
         catLog (date, path) = T.pack ("catalog from " ++ show date ++ " downloaded in " ++ path)    
     
 loadMainConfig :: IO DC_T.Config
