@@ -2,7 +2,7 @@
 module CatalogService
     ( 
         download,
-        downloadWeekReleases,
+        downloadWeekReleases,        
         parseFromCatalog,
         addCatalog,
         releaseDay,
@@ -10,9 +10,9 @@ module CatalogService
     ) where
 
 import qualified Data.ByteString.Lazy.Char8 as L8
+import qualified Control.Logging as LOGGER
 import Network.HTTP.Simple
 import Network.HTTP.Conduit
-import Control.Logging
 import qualified Data.Text as T
 import qualified Data.Configurator as DC
 import Data.Configurator.Types as DC_T
@@ -26,9 +26,23 @@ import Database.PostgreSQL.Simple
 import Data.Int
 import Parser
 import Comic
+import Control.Exception
 
 type ComicsByEditor = (String, [[String]]) -- ("Marvel", [["SpiderMan", "3.99$"], ["X-men", "3.99$"]])
 type Catalog = (String, [ComicsByEditor])  -- ("3/3/2020", [ComicsByEditor])
+
+--downloadOld :: IO ()
+--downloadOld = catch m (\e -> let _ = (e::HttpException in return ())
+--    where
+--        m :: IO ()
+--        m =  do 
+--            request <- parseUrlThrow "https://www.previewsworld.comx/NewReleases/Export?format=txt&releaseDte=03/17/2018"            
+--            response <- httpLBS $ request
+ --           let body = getResponseBody $ response
+--            if (body == "") then
+--                putStrLn $ show $ L8.length body
+--            else     
+--                putStrLn "Not Empty"
 
 download :: Day -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
 download date = ask >>= (\config -> lift $ do 
@@ -36,8 +50,12 @@ download date = ask >>= (\config -> lift $ do
     outputDir <- DC.require config (T.pack "output_dir")
     sequence $ [ case releaseDate of
                     Nothing -> return Nothing
-                    Just d -> downloadWeekReleases url d outputDir |  releaseDate <- (releaseDays date)]
+                    Just d -> catch (downloadWeekReleases url d outputDir) httpExceptionHandler |  releaseDate <- (releaseDays date)]
     )
+    where
+        httpExceptionHandler :: HttpException -> IO (Maybe a)
+        httpExceptionHandler e = (LOGGER.log $ T.pack . show $ e) >> return Nothing
+
 -- |The 'downloadWeekReleases' download the catalog from 'url' with release day 'date' to directory 'outputDir'
 downloadWeekReleases :: String       -- ^ The 'url' argument
     -> Day                           -- ^ The 'date' argument
@@ -48,7 +66,7 @@ downloadWeekReleases url date outputDir =  do
     let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" date 
     let reqUrl = url ++ "&releaseDate=" ++ queryDate
     let outputPath = outputDir ++ "catalog-" ++ fileNameDate ++ ".txt"
-    request <- parseUrlThrow reqUrl
+    request <- parseRequestThrow reqUrl
     response <- httpLBS $ request 
     let body = getResponseBody response
     L8.writeFile outputPath body
