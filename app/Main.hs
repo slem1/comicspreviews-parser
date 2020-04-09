@@ -18,6 +18,7 @@ import qualified Util as U
 
 data PArgs = PArgs {
     date :: String
+    ,offset :: Integer
     ,correlationId :: String
     ,overwrite :: Bool
 } deriving (Show)
@@ -29,6 +30,11 @@ pargs = PArgs <$> strOption
                     <> metavar "DATE"
                     <> help "reference date for import"
                 )
+            <*> option auto 
+                (   long "off"
+                    <> metavar "OFFSET"
+                    <> help "The week offset"                
+                ) 
             <*> strOption
                 (   long "correlationId"
                     <> short 'i'
@@ -57,7 +63,7 @@ main = do
             Just referenceDate -> do
                 LOGGER.log (T.pack $ "program started with arguments: " ++ show args)
                 dbc <- getConnectionInfo config >>= connect
-                catalogs <- runReaderT (CatalogService.download referenceDate) config        
+                catalogs <- runReaderT (CatalogService.download referenceDate (offset args)) config        
                 sequence $ [ case catalog of
                     Nothing -> LOGGER.warn (T.pack "Nothing downloaded") >> return (-1)
                     Just c -> parseAndInserts dbc c | catalog <- catalogs ]              

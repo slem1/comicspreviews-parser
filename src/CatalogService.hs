@@ -32,13 +32,17 @@ import qualified Util as U
 type ComicsByEditor = (String, [[String]]) -- ("Marvel", [["SpiderMan", "3.99$"], ["X-men", "3.99$"]])
 type Catalog = (String, [ComicsByEditor])  -- ("3/3/2020", [ComicsByEditor])
 
-download :: Day -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
-download date = ask >>= (\config -> lift $ do 
+-- |The 'download' download the catalog with release day starting from 'date' to 'date + offset' according to the configutation
+download :: 
+    Day                                                 -- ^ The 'date', generally the current system date
+    -> Integer                                          -- ^ The 'offset' of weeks
+    -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]   -- ^ The 'readerT' of config
+download date offset = ask >>= (\config -> lift $ do 
     url <- DC.require config (T.pack "previewsworld_url")
-    outputDir <- DC.require config (T.pack "output_dir")
-    sequence $ [ case releaseDate of
-                    Nothing -> return Nothing
-                    Just d -> catch (downloadWeekReleases url d outputDir) httpExceptionHandler |  releaseDate <- (releaseDays date)]
+    outputDir <- DC.require config (T.pack "output_dir")    
+    case releaseDays date offset of
+        Nothing -> return []
+        Just rds -> sequence $ [ catch (downloadWeekReleases url rd outputDir) httpExceptionHandler |  rd <- rds ]  
     )
     where
         httpExceptionHandler :: HttpException -> IO (Maybe a)
@@ -78,6 +82,20 @@ mapFromEditor (editor, x:xs) =  (mapToComic x editor) : (mapFromEditor (editor,x
 mapToComic :: [String] -> String -> Comic
 mapToComic [id, title, price] = Comic id title price
 
+-- |The 'releaseDays' function returns the release day date (i.e wednesday) in the week according to given date
+-- and all the previous or next release dates.
+releaseDays :: 
+    Day                      -- ^ The 'referenceDate' argument    
+    -> Integer               -- ^ The 'offset of week' argument 
+    -> Maybe [Day]           -- ^ The return release dates
+releaseDays date offset =
+    releaseDay date >>= \d -> return $ (offsetWeekRelease <$> (array offset)) <*> pure d where
+    offsetWeekRelease offset d = addDays (7 * offset) d
+    array offset 
+       | offset < 0 = [0,-1.. offset]   
+       | offset > 0 = [0,1.. offset]
+       | otherwise = [0]         
+
 -- |The 'releaseDay' function returns the release day in the week of referenceDate.
 releaseDay :: Day        -- ^ The 'referenceDate' argument
     -> Maybe Day         -- ^ The return date
@@ -85,15 +103,6 @@ releaseDay date = do
     let (year, week, day) = toWeekDate date
     fromWeekDateValid year week 3    
 
-nextReleaseDay :: Maybe Day -> Maybe Day
-nextReleaseDay d = (addDays 7) <$> d
-
--- |The 'releaseDays' function returns the release day in the week of the given date
--- and the week+1 release date.
-releaseDays :: Day      -- ^ The 'referenceDate' argument
-    -> [Maybe Day]           -- ^ The return release dates
-releaseDays d = let d0 = releaseDay d
-    in [d0, nextReleaseDay d0]
 
 -- |The 'addCatalog' function insert a complete catalog of comics in database
 addCatalog :: Connection    -- ^ The 'connection' to the database argument
@@ -112,8 +121,3 @@ insertComicsLines :: Connection -> [Comic] -> Int -> IO Int64
 insertComicsLines conn comics idCatalog = executeMany conn "INSERT INTO comicspreviews.t_comic (id_t_catalog, reference, title, price, editor) VALUES (?, ?, ?, ?, ?)" (mapper <$> comics)
     where
         mapper (Comic id title price editor) = (idCatalog, id, title, price, editor)
-
-
--- log' $ T.pack (url ++ ":" ++ (show $ getResponseStatusCode response))        
---withFileLogging logFilePath $ 
- --   log' $ T.pack ("download from " ++ url ++ " to " ++ path)

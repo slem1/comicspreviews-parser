@@ -18,19 +18,32 @@ spec = describe "test" $ do
      it "returns a positive number when given a negative number" $ do
         result <- testDownloadWeekReleases
         result `shouldSatisfy` \a -> a > 0
-        
+
      it "should return the day of release" $ do
         let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-06-30"
         let Just result = releaseDay ref
         let expected = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-07-01" 
         result `shouldBe` expected 
 
-     it "should return the 2-week days of release" $ do
+     it "should return the 2-week date of release" $ do
         let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-31"
-        let [d0, d1] = releaseDays ref
+        let Just [d0, d1] = releaseDays ref 1
         let expectedd0 = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-30"
         let expectedd1 =  parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2021-01-06"
-        [d0, d1] `shouldBe` [Just expectedd0, Just expectedd1]
+        [d0, d1] `shouldBe` [expectedd0, expectedd1]   
+
+     it "should return the current week day date of release" $ do
+        let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-31"
+        let Just [d0, d1] = releaseDays ref 1
+        let expectedd0 = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-30"        
+        [d0] `shouldBe` [expectedd0]   
+
+     it "should return the 2-week dates of release in the past" $ do
+        let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-31"
+        let Just [d0, d1] = releaseDays ref (-1)        
+        let expectedd0 = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-30"        
+        let expectedd1 =  parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-23"
+        [d0, d1] `shouldBe` [expectedd0, expectedd1]     
 
      it "should create comics from catalog" $ do
         let date = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-02-19"
