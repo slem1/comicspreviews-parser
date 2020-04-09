@@ -47,28 +47,30 @@ pargsInfo = info (pargs <**> helper) ( fullDesc <> progDesc "Import comics catal
 
 main :: IO [Int64]
 main = do
-    args <- execParser pargsInfo
-    let referenceDate = (parseTimeOrError True defaultTimeLocale "%Y-%m-%d" $ date args) :: Day    
     config <- loadMainConfig 
     logFile <- DC.require config . T.pack $ "log_file"
     LOGGER.withFileLogging logFile $ do
-        LOGGER.log (T.pack $ "program started with arguments: " ++ show args)
-        dbc <- getConnectionInfo config >>= connect
-        catalogs <- runReaderT (CatalogService.download referenceDate) config        
-        sequence $ [ case catalog of
-            Nothing -> LOGGER.log (T.pack "Nothing downloaded") >> return (-1)
-            Just c -> parseAndInserts dbc c | catalog <- catalogs ]  
+        args <- execParser pargsInfo    
+        case (parseTimeM True defaultTimeLocale "%Y-%m-%d" $ date args) of
+            Nothing -> LOGGER.log (T.pack $ "Invalid date format for the date argument") >> return []
+            Just referenceDate -> do
+                LOGGER.log (T.pack $ "program started with arguments: " ++ show args)
+                dbc <- getConnectionInfo config >>= connect
+                catalogs <- runReaderT (CatalogService.download referenceDate) config        
+                sequence $ [ case catalog of
+                    Nothing -> LOGGER.log (T.pack "Nothing downloaded") >> return (-1)
+                    Just c -> parseAndInserts dbc c | catalog <- catalogs ]              
     where        
         parseAndInserts conn (date,path) = do 
             LOGGER.log (catLog (date,path)) 
             parseResult <- CatalogService.parseFromCatalog path date
             case parseResult of                
+                Left err -> (LOGGER.log $ T.pack err) >> fail err          
                 Right comics -> do                      
                     LOGGER.log $ T.pack (show (length comics) ++ " comics parsed") 
                     result <- CatalogService.addCatalog conn (date, path) comics  
                     LOGGER.log $ T.pack "injection done"
-                    return result
-                Left err -> (LOGGER.log $ T.pack err) >> fail err          
+                    return result                
         catLog (date, path) = T.pack ("catalog from " ++ show date ++ " downloaded in " ++ path)    
     
 loadMainConfig :: IO DC_T.Config
