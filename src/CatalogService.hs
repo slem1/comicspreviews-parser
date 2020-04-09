@@ -27,22 +27,10 @@ import Data.Int
 import Parser
 import Comic
 import Control.Exception
+import qualified Util as U
 
 type ComicsByEditor = (String, [[String]]) -- ("Marvel", [["SpiderMan", "3.99$"], ["X-men", "3.99$"]])
 type Catalog = (String, [ComicsByEditor])  -- ("3/3/2020", [ComicsByEditor])
-
---downloadOld :: IO ()
---downloadOld = catch m (\e -> let _ = (e::HttpException in return ())
---    where
---        m :: IO ()
---        m =  do 
---            request <- parseUrlThrow "https://www.previewsworld.comx/NewReleases/Export?format=txt&releaseDte=03/17/2018"            
---            response <- httpLBS $ request
- --           let body = getResponseBody $ response
---            if (body == "") then
---                putStrLn $ show $ L8.length body
---            else     
---                putStrLn "Not Empty"
 
 download :: Day -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]
 download date = ask >>= (\config -> lift $ do 
@@ -54,7 +42,7 @@ download date = ask >>= (\config -> lift $ do
     )
     where
         httpExceptionHandler :: HttpException -> IO (Maybe a)
-        httpExceptionHandler e = (LOGGER.log $ T.pack . show $ e) >> return Nothing
+        httpExceptionHandler e = (U.logError $ T.pack . show $ e) >> return Nothing
 
 -- |The 'downloadWeekReleases' download the catalog from 'url' with release day 'date' to directory 'outputDir'
 downloadWeekReleases :: String       -- ^ The 'url' argument

@@ -14,6 +14,7 @@ import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.Calendar.WeekDate
 import qualified Control.Logging as LOGGER
+import qualified Util as U
 
 data PArgs = PArgs {
     date :: String
@@ -49,16 +50,16 @@ main :: IO [Int64]
 main = do
     config <- loadMainConfig 
     logFile <- DC.require config . T.pack $ "log_file"
-    LOGGER.withFileLogging logFile $ do
+    LOGGER.withFileLogging logFile $ do        
         args <- execParser pargsInfo    
         case (parseTimeM True defaultTimeLocale "%Y-%m-%d" $ date args) of
-            Nothing -> LOGGER.log (T.pack $ "Invalid date format for the date argument") >> return []
+            Nothing -> U.logError (T.pack $ "Invalid date format for the date argument") >> return []
             Just referenceDate -> do
                 LOGGER.log (T.pack $ "program started with arguments: " ++ show args)
                 dbc <- getConnectionInfo config >>= connect
                 catalogs <- runReaderT (CatalogService.download referenceDate) config        
                 sequence $ [ case catalog of
-                    Nothing -> LOGGER.log (T.pack "Nothing downloaded") >> return (-1)
+                    Nothing -> LOGGER.warn (T.pack "Nothing downloaded") >> return (-1)
                     Just c -> parseAndInserts dbc c | catalog <- catalogs ]              
     where        
         parseAndInserts conn (date,path) = do 

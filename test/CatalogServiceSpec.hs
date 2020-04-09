@@ -18,11 +18,13 @@ spec = describe "test" $ do
      it "returns a positive number when given a negative number" $ do
         result <- testDownloadWeekReleases
         result `shouldSatisfy` \a -> a > 0
+        
      it "should return the day of release" $ do
         let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-06-30"
         let Just result = releaseDay ref
         let expected = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-07-01" 
         result `shouldBe` expected 
+
      it "should return the 2-week days of release" $ do
         let ref = parseTimeOrError True defaultTimeLocale "%Y-%m-%d" "2020-12-31"
         let [d0, d1] = releaseDays ref
