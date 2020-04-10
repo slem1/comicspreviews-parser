@@ -6,7 +6,8 @@ module CatalogService
         parseFromCatalog,
         addCatalog,
         releaseDay,
-        releaseDays
+        releaseDays,
+        isCatalogExist
     ) where
 
 import qualified Data.ByteString.Lazy.Char8 as L8
@@ -111,6 +112,13 @@ addCatalog :: Connection    -- ^ The 'connection' to the database argument
 addCatalog conn (date, path) comics = 
     let dateStr = formatTime defaultTimeLocale "%Y-%m-%d" date
     in withTransaction conn $ insertCatalogLine conn (date, path) >>= \(Only idCatalog)-> insertComicsLines conn comics idCatalog
+
+isCatalogExist :: Connection -> Day -> IO Bool
+isCatalogExist conn date = do
+    rs <- (query conn "SELECT 1 FROM comicspreviews.t_catalog WHERE date_creation = ?" (Only date)) :: IO [(Only Int)]    
+    case rs of
+        [] -> return False
+        _ -> return True
 
 insertCatalogLine :: Connection -> (Day, FilePath) -> IO (Only Int)
 insertCatalogLine conn catalog = do
