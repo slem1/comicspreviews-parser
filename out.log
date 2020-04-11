@@ -1,0 +1,52 @@
+09:22:08 [INFO] Invalid date format
+09:22:19 [INFO] Invalid date format
+09:22:30 [INFO] Invalid date format
+09:22:36 [INFO] Invalid date format
+09:35:36 [ERROR] test
+09:35:36 [INFO] Invalid date format for the date argument
+09:42:51 [ERROR] Invalid date format for the date argument
+11:59:45 [INFO] program started with arguments: PArgs {date = "2020-02-20", correlationId = "123", overwrite = False}
+11:59:47 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+11:59:47 [INFO] 531 comics parsed
+11:59:47 [INFO] injection done
+11:59:47 [INFO] injection done
+11:59:47 [INFO] catalog from 2020-02-26 downloaded in catalog-2020-02-26.txt
+11:59:47 [INFO] 497 comics parsed
+12:00:02 [INFO] program started with arguments: PArgs {date = "2020-02-20", correlationId = "123", overwrite = False}
+12:00:03 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+12:00:03 [INFO] 531 comics parsed
+12:00:24 [INFO] program started with arguments: PArgs {date = "2020-02-20", correlationId = "123", overwrite = False}
+12:00:25 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+12:00:25 [INFO] 531 comics parsed
+13:24:23 [INFO] program started with arguments: PArgs {date = "2020-02-20", correlationId = "123", overwrite = False}
+13:24:24 [INFO] catalog from 2020-02-20 downloaded in catalog-2020-02-20.txt
+13:24:24 [INFO] Release date in the catalog content does not match
+15:52:05 [INFO] program started with arguments: PArgs {date = "2020-02-20", offset = 0, correlationId = "123", overwrite = False}
+15:52:06 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+15:52:06 [INFO] 531 comics parsed
+15:52:30 [INFO] program started with arguments: PArgs {date = "2020-02-20", offset = 1, correlationId = "123", overwrite = False}
+15:52:32 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+15:52:32 [INFO] 531 comics parsed
+16:39:35 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+16:39:35 [INFO] 531 comics parsed
+13:24:10 [INFO] catalog from 2020-02-19 downloaded in catalog-2020-02-19.txt
+13:24:10 [INFO] injection done
+13:24:10 [INFO] injection done
+13:24:10 [INFO] catalog from 2020-02-26 downloaded in catalog-2020-02-26.txt
+13:24:10 [INFO] 497 comics parsed
+13:24:10 [INFO] 531 comics parsed
+13:24:23 [INFO] catalog from 2020-02-19already exists
+13:24:23 [INFO] catalog from 2020-02-26already exists
+13:24:26 [INFO] catalog from 2020-02-19already exists
+13:24:26 [INFO] catalog from 2020-02-26already exists
+13:25:24 [INFO] catalog from 2020-03-04 downloaded in catalog-2020-03-04.txt
+13:25:24 [INFO] injection done
+13:25:24 [INFO] injection done
+13:25:24 [INFO] catalog from 2020-03-11 downloaded in catalog-2020-03-11.txt
+13:25:24 [INFO] 433 comics parsed
+13:25:24 [INFO] 405 comics parsed
+13:48:05 [INFO] program started with arguments: PArgs {date = "2020-03-04", offset = 1, correlationId = "123"}
+13:48:05 [INFO] catalog from 2020-03-04already exists
+13:48:05 [INFO] catalog from 2020-03-11already exists
+13:48:20 [INFO] program started with arguments: PArgs {date = "2XWX-03-04", offset = 1, correlationId = "123"}
+13:48:36 [INFO] program started with arguments: PArgs {date = "2XWX-03-04", offset = 1, correlationId = "123"}

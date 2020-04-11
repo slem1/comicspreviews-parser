@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module CatalogService
-    ( 
-        download,
-        downloadWeekReleases,        
+    (         
+        downloadReleases,        
         parseFromCatalog,
         addCatalog,
         releaseDay,
@@ -33,37 +32,24 @@ import qualified Util as U
 type ComicsByEditor = (String, [[String]]) -- ("Marvel", [["SpiderMan", "3.99$"], ["X-men", "3.99$"]])
 type Catalog = (String, [ComicsByEditor])  -- ("3/3/2020", [ComicsByEditor])
 
--- |The 'download' download the catalog with release day starting from 'date' to 'date + offset' according to the configutation
-download :: 
-    Day                                                 -- ^ The 'date', generally the current system date
-    -> Integer                                          -- ^ The 'offset' of weeks
-    -> ReaderT DC_T.Config IO [Maybe (Day, FilePath)]   -- ^ The 'readerT' of config
-download date offset = ask >>= (\config -> lift $ do 
-    url <- DC.require config (T.pack "previewsworld_url")
-    outputDir <- DC.require config (T.pack "output_dir")    
-    case releaseDays date offset of
-        Nothing -> return []
-        Just rds -> sequence $ [ catch (downloadWeekReleases url rd outputDir) httpExceptionHandler |  rd <- rds ]  
-    )
-    where
-        httpExceptionHandler :: HttpException -> IO (Maybe a)
-        httpExceptionHandler e = (U.logError $ T.pack . show $ e) >> return Nothing
-
 -- |The 'downloadWeekReleases' download the catalog from 'url' with release day 'date' to directory 'outputDir'
-downloadWeekReleases :: String       -- ^ The 'url' argument
+downloadReleases :: String       -- ^ The 'url' argument
     -> Day                           -- ^ The 'date' argument
     -> FilePath                      -- ^ The 'outputDir' argument 
     -> IO (Maybe (Day, FilePath))    -- ^ return the downloaded catalog filepath
-downloadWeekReleases url date outputDir =  do
-    let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" date
-    let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" date 
-    let reqUrl = url ++ "&releaseDate=" ++ queryDate
-    let outputPath = outputDir ++ "catalog-" ++ fileNameDate ++ ".txt"
-    request <- parseRequestThrow reqUrl
-    response <- httpLBS $ request 
-    let body = getResponseBody response
-    L8.writeFile outputPath body
-    return $ Just (date, outputPath)
+downloadReleases url date outputDir = catch (download url date outputDir) httpExceptionHandler where        
+        httpExceptionHandler :: HttpException -> IO (Maybe a)
+        httpExceptionHandler e = (U.logError $ T.pack . show $ e) >> return Nothing
+        download url date outputDir =  do
+            let queryDate = formatTime defaultTimeLocale "%m/%d/%Y" date
+            let fileNameDate = formatTime defaultTimeLocale "%Y-%m-%d" date 
+            let reqUrl = url ++ "&releaseDate=" ++ queryDate
+            let outputPath = outputDir ++ "catalog-" ++ fileNameDate ++ ".txt"
+            request <- parseRequestThrow reqUrl
+            response <- httpLBS $ request 
+            let body = getResponseBody response
+            L8.writeFile outputPath body
+            return $ Just (date, outputPath)
 
 parseFromCatalog :: FilePath -> Day -> IO (Either String [Comic])
 parseFromCatalog path date = do     
