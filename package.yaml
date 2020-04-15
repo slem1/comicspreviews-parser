@@ -36,6 +36,9 @@ dependencies:
 - time
 - postgresql-simple
 - optparse-applicative
+- cryptonite
+- memory
+- utf8-string
 
 library:
   source-dirs: src

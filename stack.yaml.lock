@@ -109,6 +109,27 @@ packages:
       sha256: f3baab2f89cb92de0f90cf9ac3a89f20f3b28bffd1be7b09c9e611a8c6957e61
   original:
     hackage: optparse-applicative-0.15.1.0
+- completed:
+    hackage: cryptonite-0.26@sha256:43c722f3770c31f4c5376e7aa42645b104834103312e217aa7fe79316416d6df,17352
+    pantry-tree:
+      size: 22455
+      sha256: cbec4c7bd57508339510f18df64827dbd65eb7ede00db07a463a36aecdda077c
+  original:
+    hackage: cryptonite-0.26
+- completed:
+    hackage: memory-0.15.0@sha256:be7024b50e876a9c3b7febaefdd81d5dc67268c58a7b4e6b3825bdc58274d88c,5002
+    pantry-tree:
+      size: 2509
+      sha256: df13688e9516d23eab08bbec9d26338d072e85bf760b654335dc14289162988f
+  original:
+    hackage: memory-0.15.0
+- completed:
+    hackage: utf8-string-1.0.1.1@sha256:68cc6cf665e7212334a51b63d6936daeaca023b2cfe8637d130acfe95f91700b,1151
+    pantry-tree:
+      size: 546
+      sha256: 94c160d3cba160be807fc2957f539453660cf64bd6cb29879aba82424d03527e
+  original:
+    hackage: utf8-string-1.0.1.1
 snapshots:
 - completed:
     size: 489011
