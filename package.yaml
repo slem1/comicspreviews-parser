@@ -39,6 +39,7 @@ dependencies:
 - cryptonite
 - memory
 - utf8-string
+- base64-bytestring
 
 library:
   source-dirs: src

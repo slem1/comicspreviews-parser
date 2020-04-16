@@ -58,6 +58,7 @@ extra-deps:
 - cryptonite-0.26
 - memory-0.15.0
 - utf8-string-1.0.1.1
+- base64-bytestring-1.0.0.3
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

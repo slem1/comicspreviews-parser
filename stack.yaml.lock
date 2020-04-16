@@ -130,6 +130,13 @@ packages:
       sha256: 94c160d3cba160be807fc2957f539453660cf64bd6cb29879aba82424d03527e
   original:
     hackage: utf8-string-1.0.1.1
+- completed:
+    hackage: base64-bytestring-1.0.0.3@sha256:6c82d900465345e30ff0eeb9a1374fbd2955c8e5ca6206e03669f04575830f88,2242
+    pantry-tree:
+      size: 848
+      sha256: 580b3808ee3ee06468d56808639a6b46615ff385c64d977423817434d17a9888
+  original:
+    hackage: base64-bytestring-1.0.0.3
 snapshots:
 - completed:
     size: 489011

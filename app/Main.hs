@@ -16,6 +16,7 @@ import Data.Time.Calendar.WeekDate
 import qualified Control.Logging as LOGGER
 import qualified Util as U
 import Control.Monad.Trans.Class
+import Crypto
 
 data PArgs = PArgs {
     date :: String
@@ -109,3 +110,7 @@ getConnectionInfo config = do
     password <- DC.require config . T.pack $ "db_password"
     database <- DC.require config . T.pack $ "db_database"
     return $ ConnectInfo host port username password database
+
+decryptProperty :: String -> FilePath -> IO (Either String String)
+decryptProperty ('{':'C':'L':'E':'A':'R':'}':xs) _ = return $ Right xs 
+decryptProperty xs keyFile = decryptString xs keyFile  
