@@ -14,9 +14,8 @@ import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.Calendar.WeekDate
 import qualified Control.Logging as LOGGER
-import qualified Util as U
 import Control.Monad.Trans.Class
-import Crypto
+import qualified Util as U
 
 data PArgs = PArgs {
     date :: String
@@ -104,13 +103,16 @@ loadMainConfig = DC.load $ [DC.Required "application.properties"]
 
 getConnectionInfo :: DC_T.Config -> IO ConnectInfo
 getConnectionInfo config = do 
+    key <- DC.require config . T.pack $ "key_path"
     host <- DC.require config . T.pack $ "db_host"
     port <- DC.require config . T.pack $ "db_port"
     username <- DC.require config . T.pack $ "db_username"
-    password <- DC.require config . T.pack $ "db_password"
+    password <- do 
+        encrypted <- DC.require config . T.pack $ "db_password"
+        eDecrypted <- U.decryptProperty encrypted key
+        case eDecrypted of 
+            Left e -> error $ show e
+            Right decrypted -> return decrypted
     database <- DC.require config . T.pack $ "db_database"
     return $ ConnectInfo host port username password database
 
-decryptProperty :: String -> FilePath -> IO (Either String String)
-decryptProperty ('{':'C':'L':'E':'A':'R':'}':xs) _ = return $ Right xs 
-decryptProperty xs keyFile = decryptString xs keyFile  

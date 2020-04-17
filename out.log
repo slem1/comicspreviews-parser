@@ -50,3 +50,11 @@
 13:48:05 [INFO] catalog from 2020-03-11already exists
 13:48:20 [INFO] program started with arguments: PArgs {date = "2XWX-03-04", offset = 1, correlationId = "123"}
 13:48:36 [INFO] program started with arguments: PArgs {date = "2XWX-03-04", offset = 1, correlationId = "123"}
+13:10:00 [INFO] program started with arguments: PArgs {date = "2XWX-03-04", offset = 1, correlationId = "123"}
+13:10:08 [INFO] program started with arguments: PArgs {date = "2020-03-04", offset = 1, correlationId = "123"}
+13:10:08 [INFO] injection done
+13:10:08 [INFO] catalog from 2020-03-04 downloaded in catalog-2020-03-04.txt
+13:10:08 [INFO] 405 comics parsed
+13:10:09 [INFO] injection done
+13:10:09 [INFO] catalog from 2020-03-11 downloaded in catalog-2020-03-11.txt
+13:10:09 [INFO] 433 comics parsed
