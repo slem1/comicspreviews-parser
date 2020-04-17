@@ -48,10 +48,18 @@ readKey path = do
   hClose h
   return (iv, key) 
 
-encryptString :: String -> FilePath -> IO String
+-- |The 'encryptString' encrypt an UTF-8 String with AES256. It returns a Base64 encoded encrypted String.
+encryptString :: 
+  String            -- ^ The 'raw String' argument 
+  -> FilePath       -- ^ The 'path' of the private key file 
+  -> IO String      -- ^ The return String encoded in Base64.
 encryptString msg keyFile = toString <$> encryptMsg msg keyFile B64.encode 
 
-decryptString :: String -> FilePath -> IO (Either String String)
+-- |The 'decryptString' decrypt an UTF-8 encoded Base64 String with AES256. It returns the UTF-8 encoded raw value.
+decryptString :: 
+  String                        -- ^ The 'b64 String' argument 
+  -> FilePath                   -- ^ The 'path' of the private key file 
+  -> IO (Either String String)  -- ^ The return value
 decryptString msg keyFile = do 
   eraw <- decryptMsg msg keyFile B64.decode
   return $ case eraw of
