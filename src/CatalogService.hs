@@ -101,14 +101,14 @@ addCatalog conn (date, path) comics =
 
 isCatalogExist :: Connection -> Day -> IO Bool
 isCatalogExist conn date = do
-    rs <- (query conn "SELECT 1 FROM comicspreviews.t_catalog WHERE date_creation = ?" (Only date)) :: IO [(Only Int)]    
+    rs <- (query conn "SELECT 1 FROM comicspreviews.t_catalog WHERE date_release = ?" (Only date)) :: IO [(Only Int)]    
     case rs of
         [] -> return False
         _ -> return True
 
 insertCatalogLine :: Connection -> (Day, FilePath) -> IO (Only Int)
 insertCatalogLine conn catalog = do
-    [x] <- query conn "INSERT INTO comicspreviews.t_catalog (date_creation,filepath) VALUES (?,?) RETURNING id_t_catalog" catalog
+    [x] <- query conn "INSERT INTO comicspreviews.t_catalog (date_release,filepath) VALUES (?,?) RETURNING id_t_catalog" catalog
     return x
 
 insertComicsLines :: Connection -> [Comic] -> Int -> IO Int64

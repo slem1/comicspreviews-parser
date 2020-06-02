@@ -77,7 +77,7 @@ start releaseDays = ask >>= (\config -> lift $ do
         downloadCatalog :: DC_T.Config -> Day -> Bool -> IO (Maybe (Day, FilePath))
         downloadCatalog config rd isCatalogExists = 
             if isCatalogExists                
-                then LOGGER.log (T.pack ("catalog from " ++ (show rd) ++ " already exists")) >> return Nothing                
+                then LOGGER.log (T.pack ("catalog from " ++ show rd ++ " already exists")) >> return Nothing                
                 else do                    
                     url <- DC.require config (T.pack "previewsworld_url")
                     outputDir <- DC.require config (T.pack "output_dir")     
@@ -89,7 +89,7 @@ parseCatalogAndInject conn (date,path) = do
     LOGGER.log (catLog (date,path)) 
     parseResult <- CatalogService.parseFromCatalog path date
     case parseResult of                
-        Left err -> (LOGGER.log $ T.pack err) >> fail err          
+        Left err -> LOGGER.log (T.pack err) >> fail err          
         Right comics -> do                      
             LOGGER.log $ T.pack (show (length comics) ++ " comics parsed") 
             result <- CatalogService.addCatalog conn (date, path) comics  
